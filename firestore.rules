@@ -15,6 +15,13 @@ service cloud.firestore {
       return profile().role == 'COMPANY' && profile().companyId == companyId;
     }
 
+    function isValidWorkplace(workplace) {
+      return workplace.keys().hasOnly(['latitude', 'longitude', 'radiusMeters'])
+        && workplace.latitude is number && workplace.latitude >= -90 && workplace.latitude <= 90
+        && workplace.longitude is number && workplace.longitude >= -180 && workplace.longitude <= 180
+        && workplace.radiusMeters is int && workplace.radiusMeters >= 50 && workplace.radiusMeters <= 1000;
+    }
+
     match /users/{uid} {
       allow read: if signedIn()
         && (request.auth.uid == uid || isCompanyAdminOf(resource.data.companyId));
@@ -40,7 +47,13 @@ service cloud.firestore {
         && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.keys().hasOnly(['name', 'ownerId', 'inviteCode', 'createdAt']);
 
-      allow update, delete: if false;
+      // The owner may only change the workplace; name, owner and invite code are immutable.
+      allow update: if signedIn()
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['workplace'])
+        && isValidWorkplace(request.resource.data.workplace);
+
+      allow delete: if false;
     }
 
     // Lookup only: anyone may check a single code before signing up, but codes cannot be listed.

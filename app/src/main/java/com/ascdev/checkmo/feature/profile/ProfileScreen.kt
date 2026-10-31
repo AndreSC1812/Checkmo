@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,20 +40,37 @@ import com.ascdev.checkmo.R
 import com.ascdev.checkmo.core.designsystem.component.CheckmoTopAppBar
 import com.ascdev.checkmo.core.designsystem.theme.CheckmoTheme
 import com.ascdev.checkmo.domain.model.Company
+import com.ascdev.checkmo.domain.model.Coordinates
 import com.ascdev.checkmo.domain.model.User
 import com.ascdev.checkmo.domain.model.UserRole
+import com.ascdev.checkmo.domain.model.Workplace
 
 @Composable
 fun ProfileRoute(
+    onOpenWorkplace: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
-    val user by viewModel.user.collectAsStateWithLifecycle()
-    user?.let { ProfileScreen(user = it, onSignOut = viewModel::signOut, modifier = modifier) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    uiState?.let {
+        ProfileScreen(
+            user = it.user,
+            workplace = it.workplace,
+            onOpenWorkplace = onOpenWorkplace,
+            onSignOut = viewModel::signOut,
+            modifier = modifier,
+        )
+    }
 }
 
 @Composable
-fun ProfileScreen(user: User, onSignOut: () -> Unit, modifier: Modifier = Modifier) {
+fun ProfileScreen(
+    user: User,
+    workplace: Workplace?,
+    onOpenWorkplace: () -> Unit,
+    onSignOut: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     var showSignOutDialog by rememberSaveable { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -91,6 +109,7 @@ fun ProfileScreen(user: User, onSignOut: () -> Unit, modifier: Modifier = Modifi
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth(),
                 )
+                WorkplaceRow(workplace = workplace, onClick = onOpenWorkplace)
             }
 
             Spacer(Modifier.size(8.dp))
@@ -155,6 +174,37 @@ private fun Avatar(name: String) {
 }
 
 @Composable
+private fun WorkplaceRow(workplace: Workplace?, onClick: () -> Unit) {
+    Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_place),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(Modifier.size(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = stringResource(R.string.workplace_title), style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = workplace?.let { stringResource(R.string.workplace_radius_summary, it.radiusMeters) }
+                        ?: stringResource(R.string.workplace_not_configured),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (workplace == null) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                )
+            }
+            Icon(painter = painterResource(R.drawable.ic_chevron_right), contentDescription = null)
+        }
+    }
+}
+
+@Composable
 private fun ProfileRow(@StringRes labelRes: Int, value: String) {
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
         Text(
@@ -184,6 +234,8 @@ private fun ProfileScreenPreview() {
                 role = UserRole.COMPANY,
                 company = Company(id = "c1", name = "Acme", inviteCode = "KCH4Z2"),
             ),
+            workplace = Workplace(Coordinates(40.41678, -3.70379), radiusMeters = 150),
+            onOpenWorkplace = {},
             onSignOut = {},
         )
     }

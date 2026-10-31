@@ -23,6 +23,12 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 
+/** Navigation actions available to screens inside the shell; they act on the current tab. */
+class ShellNavigator(
+    val navigate: (NavKey) -> Unit,
+    val goBack: () -> Unit,
+)
+
 /**
  * Bottom-bar shell for signed-in users. Each tab keeps its own back stack and decorators, so
  * switching tabs preserves screen state and ViewModels. The start tab always sits below the
@@ -31,13 +37,26 @@ import androidx.navigation3.ui.NavDisplay
 @Composable
 fun MainShell(
     destinations: List<TopLevelDestination>,
-    entryProvider: (NavKey) -> NavEntry<NavKey>,
+    entryProvider: (ShellNavigator) -> (NavKey) -> NavEntry<NavKey>,
     modifier: Modifier = Modifier,
 ) {
     val startDestination = destinations.first()
     var currentDestination by rememberSaveable { mutableStateOf(startDestination) }
 
     val backStacks = destinations.associateWith { rememberNavBackStack(it.route) }
+    val goBack: () -> Unit = {
+        val currentBackStack = backStacks.getValue(currentDestination)
+        if (currentBackStack.size > 1) {
+            currentBackStack.removeLastOrNull()
+        } else {
+            currentDestination = startDestination
+        }
+    }
+    val navigator = ShellNavigator(
+        navigate = { route -> backStacks.getValue(currentDestination).add(route) },
+        goBack = goBack,
+    )
+    val provider = entryProvider(navigator)
     val decoratedEntries = destinations.associateWith { destination ->
         rememberDecoratedNavEntries(
             backStack = backStacks.getValue(destination),
@@ -45,7 +64,7 @@ fun MainShell(
                 rememberSaveableStateHolderNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator(),
             ),
-            entryProvider = entryProvider,
+            entryProvider = provider,
         )
     }
     val entries = if (currentDestination == startDestination) {
@@ -81,14 +100,7 @@ fun MainShell(
         NavDisplay(
             entries = entries,
             modifier = Modifier.padding(innerPadding),
-            onBack = {
-                val currentBackStack = backStacks.getValue(currentDestination)
-                if (currentBackStack.size > 1) {
-                    currentBackStack.removeLastOrNull()
-                } else {
-                    currentDestination = startDestination
-                }
-            },
+            onBack = goBack,
         )
     }
 }

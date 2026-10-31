@@ -82,6 +82,25 @@
     <string name="verification_unavailable">Configura una huella o un bloqueo de pantalla para poder fichar</string>
     <string name="verification_failed">No se pudo verificar tu identidad: %1$s</string>
 
+    <!-- Workplace -->
+    <string name="workplace_title">Centro de trabajo</string>
+    <string name="workplace_description">Tus empleados solo podrán fichar cuando estén dentro de este radio.</string>
+    <string name="workplace_location">Ubicación</string>
+    <string name="workplace_not_configured">Sin configurar</string>
+    <string name="workplace_accuracy">Precisión ±%1$d m</string>
+    <string name="workplace_use_current_location">Usar mi ubicación actual</string>
+    <string name="workplace_open_map">Ver en el mapa</string>
+    <string name="workplace_radius">Radio permitido</string>
+    <string name="workplace_radius_value">%1$d m</string>
+    <string name="workplace_radius_summary">Radio de %1$d m</string>
+    <string name="workplace_save">Guardar</string>
+    <string name="workplace_saved">Centro de trabajo guardado</string>
+    <string name="workplace_save_failed">No se pudo guardar. Revisa tu conexión</string>
+    <string name="workplace_map_label">Centro de trabajo</string>
+    <string name="location_permission_denied">Necesitamos acceso a tu ubicación precisa</string>
+    <string name="location_unavailable">No pudimos obtener tu ubicación. Activa el GPS e inténtalo de nuevo</string>
+    <string name="action_back">Atrás</string>
+
     <!-- Profile -->
     <string name="profile_role">Rol</string>
     <string name="profile_company">Empresa</string>

@@ -1,4 +1,4 @@
-package com.ascdev.checkmo.data.auth
+package com.ascdev.checkmo.data.remote
 
 /** Firestore collection and field names. Keep in sync with `firestore.rules`. */
 internal object FirestoreSchema {
@@ -18,6 +18,14 @@ internal object FirestoreSchema {
         const val OWNER_ID = "ownerId"
         const val INVITE_CODE = "inviteCode"
         const val CREATED_AT = "createdAt"
+        const val WORKPLACE = "workplace"
+    }
+
+    /** Nested map stored in [Companies.WORKPLACE]. */
+    object Workplace {
+        const val LATITUDE = "latitude"
+        const val LONGITUDE = "longitude"
+        const val RADIUS_METERS = "radiusMeters"
     }
 
     object InviteCodes {

@@ -2,9 +2,9 @@ package com.ascdev.checkmo.data.auth
 
 import android.util.Log
 import com.ascdev.checkmo.core.di.IoDispatcher
-import com.ascdev.checkmo.data.auth.FirestoreSchema.Companies
-import com.ascdev.checkmo.data.auth.FirestoreSchema.InviteCodes
-import com.ascdev.checkmo.data.auth.FirestoreSchema.Users
+import com.ascdev.checkmo.data.remote.FirestoreSchema.Companies
+import com.ascdev.checkmo.data.remote.FirestoreSchema.InviteCodes
+import com.ascdev.checkmo.data.remote.FirestoreSchema.Users
 import com.ascdev.checkmo.data.session.SessionDataSource
 import com.ascdev.checkmo.domain.model.AuthError
 import com.ascdev.checkmo.domain.model.AuthException

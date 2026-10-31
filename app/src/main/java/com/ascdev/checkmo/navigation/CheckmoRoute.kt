@@ -29,6 +29,9 @@ sealed interface CheckmoRoute : NavKey {
     @Serializable
     data object Reports : CheckmoRoute
 
+    @Serializable
+    data object Workplace : CheckmoRoute
+
     // Shared
     @Serializable
     data object Profile : CheckmoRoute

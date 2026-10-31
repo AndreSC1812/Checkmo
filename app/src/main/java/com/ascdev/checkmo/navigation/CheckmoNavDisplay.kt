@@ -18,6 +18,7 @@ import com.ascdev.checkmo.feature.history.HistoryRoute
 import com.ascdev.checkmo.feature.profile.ProfileRoute
 import com.ascdev.checkmo.feature.reports.ReportsRoute
 import com.ascdev.checkmo.feature.team.TeamRoute
+import com.ascdev.checkmo.feature.workplace.WorkplaceRoute
 
 /**
  * Root navigation. Signed-out users get the auth flow; signed-in users get the bottom-bar shell
@@ -32,13 +33,18 @@ fun CheckmoNavDisplay(user: User?, modifier: Modifier = Modifier) {
             MainShell(
                 destinations = topLevelDestinationsFor(user.role),
                 modifier = modifier,
-                entryProvider = entryProvider {
-                    entry<CheckmoRoute.ClockIn> { ClockInRoute() }
-                    entry<CheckmoRoute.History> { HistoryRoute() }
-                    entry<CheckmoRoute.Team> { TeamRoute() }
-                    entry<CheckmoRoute.Corrections> { CorrectionsRoute() }
-                    entry<CheckmoRoute.Reports> { ReportsRoute() }
-                    entry<CheckmoRoute.Profile> { ProfileRoute() }
+                entryProvider = { navigator ->
+                    entryProvider {
+                        entry<CheckmoRoute.ClockIn> { ClockInRoute() }
+                        entry<CheckmoRoute.History> { HistoryRoute() }
+                        entry<CheckmoRoute.Team> { TeamRoute() }
+                        entry<CheckmoRoute.Corrections> { CorrectionsRoute() }
+                        entry<CheckmoRoute.Reports> { ReportsRoute() }
+                        entry<CheckmoRoute.Profile> {
+                            ProfileRoute(onOpenWorkplace = { navigator.navigate(CheckmoRoute.Workplace) })
+                        }
+                        entry<CheckmoRoute.Workplace> { WorkplaceRoute(onNavigateBack = navigator.goBack) }
+                    }
                 },
             )
         }
