@@ -1,5 +1,8 @@
 package com.ascdev.checkmo.feature.clockin
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,7 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -53,7 +56,6 @@ import com.ascdev.checkmo.domain.model.TimeEntry
 import com.ascdev.checkmo.domain.model.TimeEntryType
 import com.ascdev.checkmo.domain.model.WorkStatus
 import com.ascdev.checkmo.domain.model.Workday
-import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.LocalDate
 import java.time.ZoneId
@@ -64,19 +66,41 @@ fun ClockInRoute(
     viewModel: ClockInViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val pendingAction = (uiState as? ClockInUiState.Ready)?.pendingAction
+    val currentPendingAction by rememberUpdatedState(pendingAction)
     val userVerifier = rememberUserVerifier()
-    val scope = rememberCoroutineScope()
     val promptTitle = stringResource(R.string.verification_title)
     val resources = LocalResources.current
 
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+    ) { grants ->
+        currentPendingAction?.let { action ->
+            viewModel.onLocationPermissionResult(action.type, grants[Manifest.permission.ACCESS_FINE_LOCATION] == true)
+        }
+    }
+
+    LaunchedEffect(pendingAction) {
+        when (pendingAction) {
+            is ClockInPendingAction.RequestLocationPermission -> permissionLauncher.launch(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+            )
+
+            is ClockInPendingAction.VerifyUser -> {
+                val result = userVerifier.verify(
+                    title = promptTitle,
+                    subtitle = resources.getString(pendingAction.type.actionRes()),
+                )
+                viewModel.onVerificationResult(pendingAction.type, result)
+            }
+
+            null -> Unit
+        }
+    }
+
     ClockInScreen(
         uiState = uiState,
-        onRegister = { type ->
-            scope.launch {
-                val result = userVerifier.verify(title = promptTitle, subtitle = resources.getString(type.actionRes()))
-                viewModel.onVerificationResult(type, result)
-            }
-        },
+        onRegister = viewModel::onAction,
         onMessageShown = viewModel::onMessageShown,
         modifier = modifier,
     )
@@ -118,7 +142,8 @@ fun ClockInScreen(
 
             is ClockInUiState.Ready -> ClockInContent(
                 workday = uiState.workday,
-                isRegistering = uiState.isRegistering,
+                actionsEnabled = uiState.actionsEnabled,
+                isCheckingLocation = uiState.isCheckingLocation,
                 onRegister = onRegister,
                 contentPadding = innerPadding,
             )
@@ -129,7 +154,8 @@ fun ClockInScreen(
 @Composable
 private fun ClockInContent(
     workday: Workday,
-    isRegistering: Boolean,
+    actionsEnabled: Boolean,
+    isCheckingLocation: Boolean,
     onRegister: (TimeEntryType) -> Unit,
     contentPadding: PaddingValues,
 ) {
@@ -154,9 +180,12 @@ private fun ClockInContent(
         item {
             ClockActions(
                 actions = workday.status.allowedEntries,
-                enabled = !isRegistering,
+                enabled = actionsEnabled,
                 onRegister = onRegister,
             )
+        }
+        if (isCheckingLocation) {
+            item { CheckingLocation() }
         }
         item { Summary(worked = workday.worked, onBreak = workday.onBreak) }
         item {
@@ -237,6 +266,23 @@ private fun ClockActions(
                 Text(text = stringResource(type.actionRes()), style = MaterialTheme.typography.titleMedium)
             }
         }
+    }
+}
+
+@Composable
+private fun CheckingLocation() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+        Spacer(Modifier.size(8.dp))
+        Text(
+            text = stringResource(R.string.clock_in_checking_location),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 

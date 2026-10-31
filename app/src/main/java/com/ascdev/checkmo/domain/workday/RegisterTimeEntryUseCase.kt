@@ -1,5 +1,6 @@
 package com.ascdev.checkmo.domain.workday
 
+import com.ascdev.checkmo.domain.model.EntryLocation
 import com.ascdev.checkmo.domain.model.SyncStatus
 import com.ascdev.checkmo.domain.model.TimeEntry
 import com.ascdev.checkmo.domain.model.TimeEntryError
@@ -23,7 +24,7 @@ class RegisterTimeEntryUseCase @Inject constructor(
     private val clock: Clock,
 ) {
 
-    suspend operator fun invoke(type: TimeEntryType): Result<TimeEntry> {
+    suspend operator fun invoke(type: TimeEntryType, location: EntryLocation? = null): Result<TimeEntry> {
         val user = authRepository.session.first()
             ?: return Result.failure(TimeEntryException(TimeEntryError.NOT_SIGNED_IN))
 
@@ -39,6 +40,7 @@ class RegisterTimeEntryUseCase @Inject constructor(
             type = type,
             timestamp = clock.instant(),
             syncStatus = SyncStatus.PENDING,
+            location = location,
         )
         timeEntryRepository.add(entry)
         return Result.success(entry)

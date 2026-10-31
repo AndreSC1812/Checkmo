@@ -9,4 +9,6 @@ data class TimeEntry(
     val type: TimeEntryType,
     val timestamp: Instant,
     val syncStatus: SyncStatus,
+    /** `null` when the company has no workplace configured. */
+    val location: EntryLocation? = null,
 )

@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 import com.ascdev.checkmo.R
+import com.ascdev.checkmo.core.ui.DistanceFormat
 import com.ascdev.checkmo.core.designsystem.theme.CheckmoTheme
 import com.ascdev.checkmo.domain.model.TimeEntryError
 import com.ascdev.checkmo.domain.model.TimeEntryType
@@ -68,4 +69,9 @@ fun ClockInMessage.text(resources: Resources): String = when (this) {
     is ClockInMessage.EntryFailed -> resources.getString(error.messageRes())
     ClockInMessage.VerificationUnavailable -> resources.getString(R.string.verification_unavailable)
     is ClockInMessage.VerificationFailed -> resources.getString(R.string.verification_failed, reason)
+    is ClockInMessage.OutsideWorkplace ->
+        resources.getString(R.string.clock_in_outside_workplace, DistanceFormat.meters(distanceMeters))
+    ClockInMessage.MockLocation -> resources.getString(R.string.clock_in_mock_location)
+    ClockInMessage.LocationPermissionDenied -> resources.getString(R.string.location_permission_denied)
+    ClockInMessage.LocationUnavailable -> resources.getString(R.string.location_unavailable)
 }

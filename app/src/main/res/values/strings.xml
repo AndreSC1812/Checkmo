@@ -81,6 +81,9 @@
     <string name="verification_title">Confirma que eres tú</string>
     <string name="verification_unavailable">Configura una huella o un bloqueo de pantalla para poder fichar</string>
     <string name="verification_failed">No se pudo verificar tu identidad: %1$s</string>
+    <string name="clock_in_checking_location">Comprobando tu ubicación…</string>
+    <string name="clock_in_outside_workplace">Estás a %1$s del centro de trabajo. Acércate para poder fichar</string>
+    <string name="clock_in_mock_location">No se puede fichar con una ubicación simulada</string>
 
     <!-- Workplace -->
     <string name="workplace_title">Centro de trabajo</string>
