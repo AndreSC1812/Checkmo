@@ -40,7 +40,10 @@ class ObserveWorkdayUseCase @Inject constructor(
                     .distinctUntilChanged()
                     .flatMapLatest { date -> observeDay(userId, date) }
 
-                combine(dayData, ticks) { day, now ->
+                combine(dayData, ticks) { day, tick ->
+                    // A just-registered entry can be newer than the last tick; include it right away.
+                    val latestEntry = day.entries.lastOrNull()?.timestamp
+                    val now = if (latestEntry != null && latestEntry > tick) latestEntry else tick
                     WorkdayCalculator.calculate(
                         date = day.date,
                         zone = clock.zone,

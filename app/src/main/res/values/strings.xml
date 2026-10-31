@@ -46,8 +46,6 @@
     <string name="nav_profile">Perfil</string>
 
     <!-- Empty states -->
-    <string name="clock_in_empty_title">Listo para fichar</string>
-    <string name="clock_in_empty_message">Aquí podrás registrar tu entrada, pausas y salida.</string>
     <string name="history_empty_title">Sin fichajes todavía</string>
     <string name="history_empty_message">Aquí verás tus fichajes y el resumen de horas por día y semana.</string>
     <string name="team_empty_title">Tu equipo aparecerá aquí</string>
@@ -56,6 +54,28 @@
     <string name="corrections_empty_message">Las solicitudes de corrección de tus empleados aparecerán aquí.</string>
     <string name="reports_empty_title">Informes de jornada</string>
     <string name="reports_empty_message">Aquí podrás exportar los registros del mes en PDF o CSV.</string>
+
+    <!-- Clock in -->
+    <string name="work_status_off_duty">Fuera de jornada</string>
+    <string name="work_status_working">Trabajando</string>
+    <string name="work_status_on_break">En pausa</string>
+    <string name="work_status_since">desde las %1$s</string>
+    <string name="clock_in_worked_today">Trabajado hoy</string>
+    <string name="clock_in_summary_worked">Trabajado</string>
+    <string name="clock_in_summary_breaks">Pausas</string>
+    <string name="clock_in_today_entries">Fichajes de hoy</string>
+    <string name="clock_in_no_entries">Aún no has fichado hoy</string>
+    <string name="action_clock_in">Fichar entrada</string>
+    <string name="action_break_start">Iniciar pausa</string>
+    <string name="action_break_end">Volver de la pausa</string>
+    <string name="action_clock_out">Fichar salida</string>
+    <string name="entry_clock_in">Entrada</string>
+    <string name="entry_break_start">Inicio de pausa</string>
+    <string name="entry_break_end">Fin de pausa</string>
+    <string name="entry_clock_out">Salida</string>
+    <string name="time_entry_error_not_signed_in">Tu sesión ha caducado. Vuelve a iniciar sesión</string>
+    <string name="time_entry_error_invalid_transition">Ese fichaje no es posible ahora mismo</string>
+    <string name="time_entry_error_unknown">No se pudo guardar el fichaje. Inténtalo de nuevo</string>
 
     <!-- Profile -->
     <string name="profile_role">Rol</string>

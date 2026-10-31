@@ -48,4 +48,14 @@ class ObserveWorkdayUseCaseTest {
         assertEquals(Duration.ofHours(5), workday.worked)
         assertEquals(2, workday.entries.size)
     }
+
+    @Test
+    fun `entry newer than the last tick is reflected immediately`() = runTest {
+        authRepository.setSession(authRepository.testUser())
+        timeEntryRepository.entries.value = listOf(entry(TimeEntryType.CLOCK_IN, "12:00:01"))
+
+        val workday = observeWorkday(flowOf(at("12:00"))).first()!!
+
+        assertEquals(WorkStatus.WORKING, workday.status)
+    }
 }
