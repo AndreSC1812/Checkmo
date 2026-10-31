@@ -13,6 +13,10 @@ import kotlinx.coroutines.flow.StateFlow
 class FakeAuthRepository : AuthRepository {
 
     private val _session = MutableStateFlow<User?>(null)
+
+    fun setSession(user: User?) {
+        _session.value = user
+    }
     override val session: StateFlow<User?> = _session
 
     var nextError: AuthError? = null
@@ -44,7 +48,7 @@ class FakeAuthRepository : AuthRepository {
         return Result.success(user().also { _session.value = it })
     }
 
-    private fun testUser(email: String) = User(
+    fun testUser(email: String = "ana@acme.es") = User(
         id = "uid",
         name = "Ana",
         email = email,
