@@ -66,6 +66,9 @@ dependencies {
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.biometric)
+    // biometric 1.1.0 pulls an old fragment; BiometricPrompt needs a FragmentActivity host.
+    implementation(libs.androidx.fragment)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)

@@ -1,5 +1,6 @@
 package com.ascdev.checkmo.feature.clockin
 
+import android.content.res.Resources
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
@@ -61,4 +62,10 @@ fun TimeEntryError.messageRes(): Int = when (this) {
     TimeEntryError.NOT_SIGNED_IN -> R.string.time_entry_error_not_signed_in
     TimeEntryError.INVALID_TRANSITION -> R.string.time_entry_error_invalid_transition
     TimeEntryError.UNKNOWN -> R.string.time_entry_error_unknown
+}
+
+fun ClockInMessage.text(resources: Resources): String = when (this) {
+    is ClockInMessage.EntryFailed -> resources.getString(error.messageRes())
+    ClockInMessage.VerificationUnavailable -> resources.getString(R.string.verification_unavailable)
+    is ClockInMessage.VerificationFailed -> resources.getString(R.string.verification_failed, reason)
 }

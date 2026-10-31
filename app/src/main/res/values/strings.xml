@@ -77,6 +77,11 @@
     <string name="time_entry_error_invalid_transition">Ese fichaje no es posible ahora mismo</string>
     <string name="time_entry_error_unknown">No se pudo guardar el fichaje. Inténtalo de nuevo</string>
 
+    <!-- Verification -->
+    <string name="verification_title">Confirma que eres tú</string>
+    <string name="verification_unavailable">Configura una huella o un bloqueo de pantalla para poder fichar</string>
+    <string name="verification_failed">No se pudo verificar tu identidad: %1$s</string>
+
     <!-- Profile -->
     <string name="profile_role">Rol</string>
     <string name="profile_company">Empresa</string>

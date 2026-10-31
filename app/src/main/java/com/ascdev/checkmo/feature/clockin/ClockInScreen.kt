@@ -32,10 +32,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ascdev.checkmo.R
+import com.ascdev.checkmo.core.biometric.rememberUserVerifier
 import com.ascdev.checkmo.core.designsystem.component.CheckmoTopAppBar
 import com.ascdev.checkmo.core.designsystem.theme.CheckmoTheme
 import com.ascdev.checkmo.core.ui.TimeFormat
@@ -51,6 +53,7 @@ import com.ascdev.checkmo.domain.model.TimeEntry
 import com.ascdev.checkmo.domain.model.TimeEntryType
 import com.ascdev.checkmo.domain.model.WorkStatus
 import com.ascdev.checkmo.domain.model.Workday
+import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.LocalDate
 import java.time.ZoneId
@@ -61,10 +64,20 @@ fun ClockInRoute(
     viewModel: ClockInViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val userVerifier = rememberUserVerifier()
+    val scope = rememberCoroutineScope()
+    val promptTitle = stringResource(R.string.verification_title)
+    val resources = LocalResources.current
+
     ClockInScreen(
         uiState = uiState,
-        onRegister = viewModel::register,
-        onErrorShown = viewModel::onErrorShown,
+        onRegister = { type ->
+            scope.launch {
+                val result = userVerifier.verify(title = promptTitle, subtitle = resources.getString(type.actionRes()))
+                viewModel.onVerificationResult(type, result)
+            }
+        },
+        onMessageShown = viewModel::onMessageShown,
         modifier = modifier,
     )
 }
@@ -73,16 +86,16 @@ fun ClockInRoute(
 fun ClockInScreen(
     uiState: ClockInUiState,
     onRegister: (TimeEntryType) -> Unit,
-    onErrorShown: () -> Unit,
+    onMessageShown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
-    val error = (uiState as? ClockInUiState.Ready)?.error
-    LaunchedEffect(error) {
-        if (error != null) {
-            snackbarHostState.showSnackbar(context.getString(error.messageRes()))
-            onErrorShown()
+    val resources = LocalResources.current
+    val message = (uiState as? ClockInUiState.Ready)?.message
+    LaunchedEffect(message) {
+        if (message != null) {
+            snackbarHostState.showSnackbar(message.text(resources))
+            onMessageShown()
         }
     }
 
@@ -331,7 +344,7 @@ private fun ClockInScreenPreview() {
                 ),
             ),
             onRegister = {},
-            onErrorShown = {},
+            onMessageShown = {},
         )
     }
 }

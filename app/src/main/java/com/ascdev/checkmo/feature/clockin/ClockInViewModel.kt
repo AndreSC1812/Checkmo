@@ -2,6 +2,7 @@ package com.ascdev.checkmo.feature.clockin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ascdev.checkmo.core.biometric.VerificationResult
 import com.ascdev.checkmo.core.time.Ticker
 import com.ascdev.checkmo.domain.model.TimeEntryError
 import com.ascdev.checkmo.domain.model.TimeEntryException
@@ -33,26 +34,40 @@ class ClockInViewModel @Inject constructor(
         observeWorkday(ticker.ticks()).filterNotNull(),
         actionState,
     ) { workday, action ->
-        ClockInUiState.Ready(workday = workday, isRegistering = action.isRegistering, error = action.error)
+        ClockInUiState.Ready(workday = workday, isRegistering = action.isRegistering, message = action.message)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ClockInUiState.Loading)
 
-    fun register(type: TimeEntryType) {
-        if (actionState.value.isRegistering) return
-        actionState.update { it.copy(isRegistering = true, error = null) }
-        viewModelScope.launch {
-            val error = registerTimeEntry(type).exceptionOrNull()?.let { e ->
-                (e as? TimeEntryException)?.error ?: TimeEntryError.UNKNOWN
-            }
-            actionState.update { ActionState(isRegistering = false, error = error) }
+    /** Every entry must be confirmed by the device owner before it is recorded. */
+    fun onVerificationResult(type: TimeEntryType, result: VerificationResult) {
+        when (result) {
+            VerificationResult.Success -> register(type)
+            VerificationResult.Cancelled -> Unit
+            VerificationResult.Unavailable -> showMessage(ClockInMessage.VerificationUnavailable)
+            is VerificationResult.Error -> showMessage(ClockInMessage.VerificationFailed(result.message))
         }
     }
 
-    fun onErrorShown() {
-        actionState.update { it.copy(error = null) }
+    fun onMessageShown() {
+        actionState.update { it.copy(message = null) }
+    }
+
+    private fun register(type: TimeEntryType) {
+        if (actionState.value.isRegistering) return
+        actionState.update { it.copy(isRegistering = true, message = null) }
+        viewModelScope.launch {
+            val message = registerTimeEntry(type).exceptionOrNull()?.let { e ->
+                ClockInMessage.EntryFailed((e as? TimeEntryException)?.error ?: TimeEntryError.UNKNOWN)
+            }
+            actionState.update { ActionState(isRegistering = false, message = message) }
+        }
+    }
+
+    private fun showMessage(message: ClockInMessage) {
+        actionState.update { it.copy(message = message) }
     }
 
     private data class ActionState(
         val isRegistering: Boolean = false,
-        val error: TimeEntryError? = null,
+        val message: ClockInMessage? = null,
     )
 }

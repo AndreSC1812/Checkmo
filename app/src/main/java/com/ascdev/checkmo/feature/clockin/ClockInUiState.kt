@@ -10,6 +10,12 @@ sealed interface ClockInUiState {
     data class Ready(
         val workday: Workday,
         val isRegistering: Boolean = false,
-        val error: TimeEntryError? = null,
+        val message: ClockInMessage? = null,
     ) : ClockInUiState
+}
+
+sealed interface ClockInMessage {
+    data class EntryFailed(val error: TimeEntryError) : ClockInMessage
+    data object VerificationUnavailable : ClockInMessage
+    data class VerificationFailed(val reason: String) : ClockInMessage
 }

@@ -1,5 +1,6 @@
 package com.ascdev.checkmo.feature.clockin
 
+import com.ascdev.checkmo.core.biometric.VerificationResult
 import com.ascdev.checkmo.core.time.Ticker
 import com.ascdev.checkmo.domain.model.TimeEntryError
 import com.ascdev.checkmo.domain.model.TimeEntryType
@@ -20,6 +21,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -63,13 +65,43 @@ class ClockInViewModelTest {
     }
 
     @Test
-    fun `clocking in switches to working`() = runTest {
+    fun `verified clock in switches to working`() = runTest {
         collectUiState()
 
-        viewModel.register(TimeEntryType.CLOCK_IN)
+        viewModel.onVerificationResult(TimeEntryType.CLOCK_IN, VerificationResult.Success)
 
         assertEquals(WorkStatus.WORKING, readyState.workday.status)
         assertEquals(1, readyState.workday.entries.size)
+    }
+
+    @Test
+    fun `cancelled verification records nothing and shows no message`() = runTest {
+        collectUiState()
+
+        viewModel.onVerificationResult(TimeEntryType.CLOCK_IN, VerificationResult.Cancelled)
+
+        assertTrue(timeEntryRepository.entries.value.isEmpty())
+        assertNull(readyState.message)
+    }
+
+    @Test
+    fun `unavailable verification records nothing and asks to set up a lock`() = runTest {
+        collectUiState()
+
+        viewModel.onVerificationResult(TimeEntryType.CLOCK_IN, VerificationResult.Unavailable)
+
+        assertTrue(timeEntryRepository.entries.value.isEmpty())
+        assertEquals(ClockInMessage.VerificationUnavailable, readyState.message)
+    }
+
+    @Test
+    fun `verification error records nothing and shows the reason`() = runTest {
+        collectUiState()
+
+        viewModel.onVerificationResult(TimeEntryType.CLOCK_IN, VerificationResult.Error("Demasiados intentos"))
+
+        assertTrue(timeEntryRepository.entries.value.isEmpty())
+        assertEquals(ClockInMessage.VerificationFailed("Demasiados intentos"), readyState.message)
     }
 
     @Test
@@ -86,10 +118,10 @@ class ClockInViewModelTest {
     fun `invalid entry shows error until it is consumed`() = runTest {
         collectUiState()
 
-        viewModel.register(TimeEntryType.CLOCK_OUT)
-        assertEquals(TimeEntryError.INVALID_TRANSITION, readyState.error)
+        viewModel.onVerificationResult(TimeEntryType.CLOCK_OUT, VerificationResult.Success)
+        assertEquals(ClockInMessage.EntryFailed(TimeEntryError.INVALID_TRANSITION), readyState.message)
 
-        viewModel.onErrorShown()
-        assertNull(readyState.error)
+        viewModel.onMessageShown()
+        assertNull(readyState.message)
     }
 }
