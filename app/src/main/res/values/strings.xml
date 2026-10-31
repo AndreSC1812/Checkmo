@@ -1,3 +1,41 @@
 <resources>
     <string name="app_name">Checkmo</string>
+    <string name="app_tagline">Registro de jornada</string>
+
+    <!-- Auth -->
+    <string name="auth_email">Correo electrónico</string>
+    <string name="auth_password">Contraseña</string>
+    <string name="auth_show_password">Mostrar contraseña</string>
+    <string name="auth_hide_password">Ocultar contraseña</string>
+    <string name="auth_sign_in">Iniciar sesión</string>
+    <string name="auth_forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="auth_password_reset_sent">Te hemos enviado un correo para restablecer la contraseña</string>
+    <string name="auth_no_account">¿No tienes cuenta?</string>
+    <string name="auth_create_account">Crear cuenta</string>
+    <string name="auth_have_account">Ya tengo cuenta</string>
+    <string name="auth_sign_up_title">Crea tu cuenta</string>
+    <string name="auth_sign_up_subtitle">¿Cómo vas a usar Checkmo?</string>
+    <string name="auth_name">Nombre completo</string>
+    <string name="auth_company_name">Nombre de la empresa</string>
+    <string name="auth_invite_code">Código de empresa</string>
+    <string name="auth_invite_code_hint">Pídeselo a tu empresa</string>
+    <string name="auth_password_hint">Mínimo %1$d caracteres</string>
+    <string name="role_employee">Empleado</string>
+    <string name="role_company">Empresa</string>
+
+    <!-- Auth errors -->
+    <string name="auth_error_empty_fields">Completa todos los campos</string>
+    <string name="auth_error_invalid_email">El correo no es válido</string>
+    <string name="auth_error_weak_password">La contraseña debe tener al menos %1$d caracteres</string>
+    <string name="auth_error_invalid_credentials">Correo o contraseña incorrectos</string>
+    <string name="auth_error_email_in_use">Ya existe una cuenta con este correo</string>
+    <string name="auth_error_invalid_invite_code">El código de empresa no existe</string>
+    <string name="auth_error_profile_not_found">No encontramos tu perfil. Contacta con tu empresa</string>
+    <string name="auth_error_network">Sin conexión. Inténtalo de nuevo</string>
+    <string name="auth_error_unknown">Algo salió mal. Inténtalo de nuevo</string>
+
+    <!-- Home -->
+    <string name="home_greeting">Hola, %1$s</string>
+    <string name="home_invite_code">Código para tus empleados</string>
+    <string name="home_sign_out">Cerrar sesión</string>
 </resources>

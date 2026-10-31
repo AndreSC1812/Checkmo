@@ -1,0 +1,58 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function profile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isCompanyAdminOf(companyId) {
+      return profile().role == 'COMPANY' && profile().companyId == companyId;
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn()
+        && (request.auth.uid == uid || isCompanyAdminOf(resource.data.companyId));
+
+      // Employees join an existing company; company accounts must own the company created in the same batch.
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'email', 'role', 'companyId', 'createdAt'])
+        && (
+          (request.resource.data.role == 'EMPLOYEE'
+            && exists(/databases/$(database)/documents/companies/$(request.resource.data.companyId)))
+          || (request.resource.data.role == 'COMPANY'
+            && getAfter(/databases/$(database)/documents/companies/$(request.resource.data.companyId)).data.ownerId == uid)
+        );
+
+      allow update, delete: if false;
+    }
+
+    match /companies/{companyId} {
+      allow read: if signedIn() && profile().companyId == companyId;
+
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.keys().hasOnly(['name', 'ownerId', 'inviteCode', 'createdAt']);
+
+      allow update, delete: if false;
+    }
+
+    // Lookup only: anyone may check a single code before signing up, but codes cannot be listed.
+    match /inviteCodes/{code} {
+      allow get: if true;
+      allow list: if false;
+
+      allow create: if signedIn()
+        && getAfter(/databases/$(database)/documents/companies/$(request.resource.data.companyId)).data.ownerId == request.auth.uid
+        && getAfter(/databases/$(database)/documents/companies/$(request.resource.data.companyId)).data.inviteCode == code;
+
+      allow update, delete: if false;
+    }
+  }
+}

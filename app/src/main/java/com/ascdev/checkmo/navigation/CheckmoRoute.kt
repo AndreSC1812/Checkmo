@@ -6,5 +6,11 @@ import kotlinx.serialization.Serializable
 sealed interface CheckmoRoute : NavKey {
 
     @Serializable
+    data object Login : CheckmoRoute
+
+    @Serializable
+    data object SignUp : CheckmoRoute
+
+    @Serializable
     data object Home : CheckmoRoute
 }
