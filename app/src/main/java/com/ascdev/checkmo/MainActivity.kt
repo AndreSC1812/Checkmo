@@ -6,8 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,13 +26,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             CheckmoTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     // Keep the themed window background while the cached session loads.
-                    if (uiState != MainUiState.Loading) {
-                        CheckmoNavDisplay(
-                            isSignedIn = uiState is MainUiState.SignedIn,
-                            modifier = Modifier.padding(innerPadding),
-                        )
+                    when (val state = uiState) {
+                        MainUiState.Loading -> Unit
+                        MainUiState.SignedOut -> CheckmoNavDisplay(user = null)
+                        is MainUiState.SignedIn -> CheckmoNavDisplay(user = state.user)
                     }
                 }
             }

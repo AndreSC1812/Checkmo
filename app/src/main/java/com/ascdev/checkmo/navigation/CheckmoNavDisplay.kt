@@ -1,45 +1,69 @@
 package com.ascdev.checkmo.navigation
 
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.ascdev.checkmo.domain.model.User
 import com.ascdev.checkmo.feature.auth.login.LoginRoute
 import com.ascdev.checkmo.feature.auth.signup.SignUpRoute
-import com.ascdev.checkmo.feature.home.HomeRoute
+import com.ascdev.checkmo.feature.clockin.ClockInRoute
+import com.ascdev.checkmo.feature.corrections.CorrectionsRoute
+import com.ascdev.checkmo.feature.history.HistoryRoute
+import com.ascdev.checkmo.feature.profile.ProfileRoute
+import com.ascdev.checkmo.feature.reports.ReportsRoute
+import com.ascdev.checkmo.feature.team.TeamRoute
 
 /**
- * Hosts the app's navigation. Signed-in and signed-out users get separate back stacks, so
- * signing in or out replaces the whole stack and Back never returns to the other flow.
+ * Root navigation. Signed-out users get the auth flow; signed-in users get the bottom-bar shell
+ * for their role. Changing user or role recreates the stacks, so Back never crosses flows.
  */
 @Composable
-fun CheckmoNavDisplay(isSignedIn: Boolean, modifier: Modifier = Modifier) {
-    key(isSignedIn) {
-        val startRoute: NavKey = if (isSignedIn) CheckmoRoute.Home else CheckmoRoute.Login
-        val backStack = rememberNavBackStack(startRoute)
-
-        NavDisplay(
-            backStack = backStack,
-            modifier = modifier,
-            onBack = { backStack.removeLastOrNull() },
-            entryDecorators = listOf(
-                rememberSaveableStateHolderNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator(),
-            ),
-            entryProvider = entryProvider {
-                entry<CheckmoRoute.Login> {
-                    LoginRoute(onCreateAccount = { backStack.add(CheckmoRoute.SignUp) })
-                }
-                entry<CheckmoRoute.SignUp> {
-                    SignUpRoute(onBackToLogin = { backStack.removeLastOrNull() })
-                }
-                entry<CheckmoRoute.Home> { HomeRoute() }
-            },
-        )
+fun CheckmoNavDisplay(user: User?, modifier: Modifier = Modifier) {
+    key(user?.id, user?.role) {
+        if (user == null) {
+            AuthNavDisplay(modifier = modifier.systemBarsPadding())
+        } else {
+            MainShell(
+                destinations = topLevelDestinationsFor(user.role),
+                modifier = modifier,
+                entryProvider = entryProvider {
+                    entry<CheckmoRoute.ClockIn> { ClockInRoute() }
+                    entry<CheckmoRoute.History> { HistoryRoute() }
+                    entry<CheckmoRoute.Team> { TeamRoute() }
+                    entry<CheckmoRoute.Corrections> { CorrectionsRoute() }
+                    entry<CheckmoRoute.Reports> { ReportsRoute() }
+                    entry<CheckmoRoute.Profile> { ProfileRoute() }
+                },
+            )
+        }
     }
+}
+
+@Composable
+private fun AuthNavDisplay(modifier: Modifier = Modifier) {
+    val backStack = rememberNavBackStack(CheckmoRoute.Login)
+
+    NavDisplay(
+        backStack = backStack,
+        modifier = modifier,
+        onBack = { backStack.removeLastOrNull() },
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator(),
+        ),
+        entryProvider = entryProvider {
+            entry<CheckmoRoute.Login> {
+                LoginRoute(onCreateAccount = { backStack.add(CheckmoRoute.SignUp) })
+            }
+            entry<CheckmoRoute.SignUp> {
+                SignUpRoute(onBackToLogin = { backStack.removeLastOrNull() })
+            }
+        },
+    )
 }

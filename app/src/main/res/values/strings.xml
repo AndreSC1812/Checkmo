@@ -34,8 +34,35 @@
     <string name="auth_error_network">Sin conexión. Inténtalo de nuevo</string>
     <string name="auth_error_unknown">Algo salió mal. Inténtalo de nuevo</string>
 
-    <!-- Home -->
-    <string name="home_greeting">Hola, %1$s</string>
-    <string name="home_invite_code">Código para tus empleados</string>
-    <string name="home_sign_out">Cerrar sesión</string>
+    <!-- Common -->
+    <string name="action_cancel">Cancelar</string>
+
+    <!-- Navigation -->
+    <string name="nav_clock_in">Fichar</string>
+    <string name="nav_history">Historial</string>
+    <string name="nav_team">Equipo</string>
+    <string name="nav_corrections">Correcciones</string>
+    <string name="nav_reports">Informes</string>
+    <string name="nav_profile">Perfil</string>
+
+    <!-- Empty states -->
+    <string name="clock_in_empty_title">Listo para fichar</string>
+    <string name="clock_in_empty_message">Aquí podrás registrar tu entrada, pausas y salida.</string>
+    <string name="history_empty_title">Sin fichajes todavía</string>
+    <string name="history_empty_message">Aquí verás tus fichajes y el resumen de horas por día y semana.</string>
+    <string name="team_empty_title">Tu equipo aparecerá aquí</string>
+    <string name="team_empty_message">Verás en tiempo real quién ha fichado entrada, pausa o salida.</string>
+    <string name="corrections_empty_title">Sin correcciones pendientes</string>
+    <string name="corrections_empty_message">Las solicitudes de corrección de tus empleados aparecerán aquí.</string>
+    <string name="reports_empty_title">Informes de jornada</string>
+    <string name="reports_empty_message">Aquí podrás exportar los registros del mes en PDF o CSV.</string>
+
+    <!-- Profile -->
+    <string name="profile_role">Rol</string>
+    <string name="profile_company">Empresa</string>
+    <string name="profile_invite_code">Código de empresa</string>
+    <string name="profile_invite_code_hint">Comparte este código con tus empleados para que se unan a tu empresa al crear su cuenta.</string>
+    <string name="profile_sign_out">Cerrar sesión</string>
+    <string name="profile_sign_out_title">¿Cerrar sesión?</string>
+    <string name="profile_sign_out_message">Tendrás que volver a iniciar sesión para fichar.</string>
 </resources>
